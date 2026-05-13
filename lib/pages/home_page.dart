@@ -1,6 +1,7 @@
 // home_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jobmatch_ai/pages/matches_pages.dart';
 
 import '../providers/auth_provider.dart';
 import 'login_page.dart';
@@ -86,6 +87,17 @@ class HomePage extends ConsumerWidget {
                 );
               },
             ),
+            ListTile(
+  leading: const Icon(Icons.psychology),
+  title: const Text("Matches IA"),
+  onTap: () {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MatchesPage()),
+    );
+  },
+),
           ],
         ),
       ),
