@@ -2,6 +2,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http; // ← AJOUTÉ pour la fonction de test
 import '../providers/auth_provider.dart';
 import '../providers/cv_provider.dart';
 
@@ -14,6 +15,32 @@ class UploadCvPage extends ConsumerStatefulWidget {
 
 class _UploadCvPageState extends ConsumerState<UploadCvPage> {
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _testApiConnection(); // ← AJOUTÉ pour tester la connexion API
+  }
+
+  // ← AJOUT DE LA FONCTION DE TEST
+  Future<void> _testApiConnection() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/health'),
+      ).timeout(const Duration(seconds: 3));
+      
+      if (response.statusCode == 200) {
+        print('✅ API NER connectée avec succès');
+        print('✅ Response: ${response.body}');
+      } else {
+        print('⚠️ API réponse: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Erreur connexion API NER: $e');
+      print('⚠️ Vérifiez que l\'API Python est lancée sur http://localhost:5000');
+      print('⚠️ L\'extraction des compétences utilisera le fallback local');
+    }
+  }
 
   Future<void> _pickAndUploadCv() async {
     setState(() => isLoading = true);

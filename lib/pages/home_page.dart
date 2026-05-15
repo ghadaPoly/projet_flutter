@@ -94,7 +94,7 @@ class HomePage extends ConsumerWidget {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const MatchesPage()),
+      MaterialPageRoute(builder: (_) => const MatchingPage()),
     );
   },
 ),
