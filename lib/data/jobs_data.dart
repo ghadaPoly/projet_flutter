@@ -1,4 +1,3 @@
-// lib/data/jobs_data.dart
 import '../models/job.dart';
 
 class JobsData {
@@ -8,7 +7,7 @@ class JobsData {
       title: 'Développeur Flutter Mobile',
       company: 'Tech Innovation',
       location: 'Tunis',
-      description: 'Développement d\'applications mobiles avec Flutter',
+      description: 'Développement des applications mobiles avec Flutter',
       requirements: ['flutter', 'dart', 'firebase', 'mobile', 'api'],
       salaryRange: '1200 - 1800 TND',
     ),

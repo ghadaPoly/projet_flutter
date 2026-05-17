@@ -1,4 +1,3 @@
-// cv_provider.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:typed_data';   // ← Très important
@@ -12,7 +11,7 @@ class CvNotifier extends StateNotifier<List<CvModel>> {
 
   final CvService _cvService = CvService();
 
-  // Upload pour Mobile / Desktop
+  // Upload pour mobile et deskt
   Future<String?> uploadCv(String filePath, String fileName, String userId) async {
     try {
       final cv = await _cvService.processCv(filePath, fileName, userId);
@@ -29,16 +28,18 @@ class CvNotifier extends StateNotifier<List<CvModel>> {
     }
   }
 
-  // Upload pour Web (Bytes)
+  // Upload pour web en bytes
   Future<String?> uploadCvFromBytes(Uint8List bytes, String fileName, String userId) async {
     try {
+      // transforme fichier en objet CvModel
       final cv = await _cvService.processCvFromBytes(bytes, fileName, userId);
 
       await FirebaseFirestore.instance
           .collection('cvs')
           .doc(cv.id)
           .set(cv.toMap());
-
+    // ajoute le nouveau Ccv f awel liste
+    // prends tous les precedents éléments de la liste et on rajoute le nv cv
       state = [cv, ...state];
       return null;
     } catch (e) {

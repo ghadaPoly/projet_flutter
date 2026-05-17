@@ -1,4 +1,3 @@
-// matching_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/cv.dart';
 import '../models/job.dart';
@@ -7,7 +6,6 @@ import 'jobs_provider.dart';
 
 final aiServiceProvider = Provider<AiService>((ref) => AiService());
 
-// ── État du matching ────────────────────────────────────────────────────────
 class MatchingState {
   final List<Map<String, dynamic>> results;
   final bool isLoading;
@@ -25,6 +23,7 @@ class MatchingState {
     String? error,
   }) {
     return MatchingState(
+      //  pas de nvelle val : garder l'ancien sinn utilise la nvelle val
       results: results ?? this.results,
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -32,19 +31,20 @@ class MatchingState {
   }
 }
 
-// ── Provider ────────────────────────────────────────────────────────────────
+// provider
 final matchesProvider =
     StateNotifierProvider<MatchesNotifier, MatchingState>(
   (ref) => MatchesNotifier(ref),
 );
 
 class MatchesNotifier extends StateNotifier<MatchingState> {
+  // permission to use jobsprovider et aiserviceprovider
   final Ref ref;
-
+// constructor
   MatchesNotifier(this.ref) : super(const MatchingState());
 
   Future<void> calculateMatches(CvModel cv) async {
-    // Garde-fou : ne pas relancer si déjà en cours
+    // si en cours de loading ignorer les doubles clics
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, results: [], error: null);
@@ -57,7 +57,7 @@ class MatchesNotifier extends StateNotifier<MatchingState> {
       for (final job in jobs) {
         final analysis = await aiService.analyzeCvWithJob(
           cvText: cv.extractedText,
-          cvKeywords: cv.keywords,        // ← NER keywords déjà extraits
+          cvKeywords: cv.keywords,    // ner  
           jobTitle: job.title,
           jobDescription: job.description,
           requirements: job.requirements,

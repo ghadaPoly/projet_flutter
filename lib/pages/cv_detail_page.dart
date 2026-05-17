@@ -1,4 +1,3 @@
-// cv_detail_page.dart
 import 'package:flutter/material.dart';
 import '../models/cv.dart';
 

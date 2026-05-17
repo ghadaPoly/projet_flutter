@@ -1,4 +1,3 @@
-// models/job.dart
 class JobModel {
   final String id;
   final String title;
@@ -18,7 +17,6 @@ class JobModel {
     required this.salaryRange,
   });
 
-  // Pour la sérialisation future (Firestore)
   Map<String, dynamic> toMap() {
     return {
       'id': id,

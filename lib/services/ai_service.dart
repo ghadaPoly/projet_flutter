@@ -1,34 +1,30 @@
-// ai_service.dart
 import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
 class AiService {
-  // ── Même base URL que cv_service.dart ─────────────────────────────────────
   static const String _nerApiBase = 'http://10.0.2.2:5000';
 
-  // ==========================================================================
-  // POINT D'ENTRÉE PRINCIPAL
-  // ==========================================================================
+
   Future<Map<String, dynamic>> analyzeCvWithJob({
     required String cvText,
-    required List<String> cvKeywords, // ← mots-clés déjà extraits par NER
+    required List<String> cvKeywords, // keywords extraits par NER
     required String jobTitle,
     required String jobDescription,
     required List<String> requirements,
   }) async {
-    // 1. Normalise tout en minuscules sans accents
+    //  1 ynormalisi tout en minuscules sans accents
     final cvSkills = _normalizeSet(cvKeywords);
     final jobReqs = _normalizeSet(requirements);
     final cvLower = _removeDiacritics(cvText.toLowerCase());
     final jobLower = _removeDiacritics((jobTitle + ' ' + jobDescription).toLowerCase());
 
-    // 2. Matching skills CV ↔ requirements job
-    final matched = <String>{};
+    //  2 Matching skills avec requirements job
+    final matched = <String>{};// list
     final missing = <String>{};
 
     for (final req in jobReqs) {
-      // Cherche la compétence soit dans les keywords NER, soit dans le texte brut
+      // ylawej al competence soit dans les keywords ner soit dans le texte brut
       if (cvSkills.contains(req) || cvLower.contains(req)) {
         matched.add(req);
       } else {
@@ -36,64 +32,70 @@ class AiService {
       }
     }
 
-    // 3. Calcul du score de base (0–100)
+    // 3 Calcul du score de base (0–100)
     final double baseScore = jobReqs.isEmpty
         ? 50.0
         : (matched.length / jobReqs.length) * 100;
 
-    // 4. Bonus contextuels (max +15 au total)
+    // 4 points supplementaires (max 15)
     double bonus = 0;
 
-    // Bonus titre : le titre du job apparaît dans le CV
+    //  le titre du job apparaît dans le CV
+    // tkasssem la phrase en mots (séparés par espaces)
     final titleWords = jobTitle.toLowerCase().split(RegExp(r'\s+'));
     final titleMatchCount = titleWords.where((w) => w.length > 3 && cvLower.contains(w)).length;
     if (titleMatchCount > 0) {
-      bonus += min(8.0, titleMatchCount * 3.0); // max +8
+      bonus += min(8.0, titleMatchCount * 3.0); // chaque mot 3 pts et max 8 pts
     }
 
-    // Bonus expérience : années mentionnées
+    // experience : années mentionnées
+    // on cherche un nombre + "ans" ou "years":3 years ...
     final expMatch = RegExp(r'(\d+)\s*(?:ans?|years?)').firstMatch(cvLower);
     if (expMatch != null) {
+
+      // le nombre trouvé
       final years = int.tryParse(expMatch.group(1) ?? '') ?? 0;
       if (years >= 3) bonus += 5;
       else if (years >= 1) bonus += 2;
     }
 
-    // Bonus diplôme
+    //  diplôme
     if (cvLower.contains('master') || cvLower.contains('ingénieur') || cvLower.contains('engineer')) {
       bonus += 2;
     }
 
-    // 5. Score final clampé 0–100 (pas de plancher artificiel)
+    // 5 Score final si sup a 100 il sera 100 si inf a 0 il sera 0
     final int finalScore = (baseScore + bonus).clamp(0, 100).round();
 
-    // 6. Niveau et commentaire
+    // 6 transforme le score en niveau
     final level = _scoreLevel(finalScore);
 
-    // 7. Suggestions basées sur les vraies lacunes
+    // 7 Suggestions
     final suggestions = _buildSuggestions(
+      // on envoie missing
       missing: missing.toList(),
       finalScore: finalScore,
       cvLower: cvLower,
     );
 
-    // 8. Compétences supplémentaires du CV non demandées (valeur ajoutée)
+    // 8 Compétences supplémentaires du CV non demandées (valeur ajoutée)
     final bonusSkills = cvSkills
         .difference(jobReqs)
+        // on enlève les mots trop courts
         .where((s) => s.length > 2)
         .take(5)
         .toList();
-
+  // on retourne toutes les infos du matching
     return {
       'score': finalScore,
       'level': level['label'],
-      'color': level['color'], // pour l'UI
+      'color': level['color'],
       'matched': matched.toList()..sort(),
       'missing': missing.toList()..sort(),
       'bonusSkills': bonusSkills,
       'suggestions': suggestions,
       'comment': _buildComment(finalScore, matched.length, jobReqs.length),
-      // Détail du calcul (utile pour debug)
+      
       'debug': {
         'baseScore': baseScore.toStringAsFixed(1),
         'bonus': bonus.toStringAsFixed(1),
@@ -103,10 +105,7 @@ class AiService {
     };
   }
 
-  // ==========================================================================
-  // HELPERS PRIVÉS
-  // ==========================================================================
-
+  // fcts prv
   /// Normalise une liste en Set minuscule sans accents
   Set<String> _normalizeSet(List<String> items) {
     return items
@@ -115,7 +114,7 @@ class AiService {
         .toSet();
   }
 
-  /// Supprime les accents pour une comparaison robuste
+  /// Supprime les accents 
   String _removeDiacritics(String s) {
     const from = 'àáâãäçèéêëìíîïñòóôõöùúûüýÿ';
     const to   = 'aaaaaceeeeiiiinooooouuuuyy';

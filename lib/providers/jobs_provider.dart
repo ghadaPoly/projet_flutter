@@ -1,7 +1,6 @@
-// lib/providers/jobs_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/job.dart';
-import '../data/jobs_data.dart';   // Ou le chemin où tu as mis jobs_data.dart
+import '../data/jobs_data.dart';   
 
 final jobsProvider = StateNotifierProvider<JobsNotifier, List<JobModel>>((ref) => JobsNotifier());
 
@@ -11,10 +10,10 @@ class JobsNotifier extends StateNotifier<List<JobModel>> {
   }
 
   void loadJobs() {
+    // my fake jobs
     state = JobsData.jobs;
   }
 
-  // Recherche dans les offres
   List<JobModel> searchJobs(String query) {
     if (query.trim().isEmpty) return state;
     

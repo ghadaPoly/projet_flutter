@@ -11,7 +11,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  print("✅ Firebase connecté avec succès !");
+  print("Firebase connecté avec succès !");
 
   runApp(const ProviderScope(child: JobMatchApp()));
 }
@@ -25,7 +25,7 @@ class JobMatchApp extends StatelessWidget {
       title: 'JobMatch AI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const LoginPage(),   // On commence par la page de connexion
+      home: const LoginPage(),   
     );
   }
 }
